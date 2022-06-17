@@ -1,0 +1,11 @@
+debug/avi.o
+debug/dialogcolors.o
+debug/dialoglog.o
+debug/frame.o
+debug/main.o
+debug/mainwindow.o
+debug/video.o
+debug/qrc_res.o
+debug/moc_dialogcolors.o
+debug/moc_dialoglog.o
+debug/moc_mainwindow.o

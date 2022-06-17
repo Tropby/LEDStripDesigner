@@ -1,0 +1,11 @@
+release/avi.o
+release/dialogcolors.o
+release/dialoglog.o
+release/frame.o
+release/main.o
+release/mainwindow.o
+release/video.o
+release/qrc_res.o
+release/moc_dialogcolors.o
+release/moc_dialoglog.o
+release/moc_mainwindow.o
