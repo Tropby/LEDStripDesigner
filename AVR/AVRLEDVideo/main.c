@@ -16,6 +16,7 @@
 #include "lib/fat16.h"
 #include "lib/uart.h"
 
+#define UART_ONLY_MODE
 
 #ifdef DEBUG
 uint8_t ledData[10];
@@ -41,15 +42,47 @@ void initTimer0()
 	TIMSK0 |= (1<<OCIE0A);
 }
 
+ static uint8_t crc8(uint8_t* data, uint16_t length, uint8_t startValue)
+ {
+	 uint8_t bit_counter;
+	 uint8_t feedback_bit;
+	 uint16_t i;
+	 uint8_t crc = startValue;
+	 uint8_t inByte;
+
+	 for (i = 0; i < length; i++)
+	 {
+		 bit_counter = 8;
+		 inByte = *data;
+		 data++;
+		 do
+		 {
+			 feedback_bit = (crc ^ inByte) & 0x01;
+			 if (feedback_bit)
+			 crc = crc ^ 0x18;
+			 crc = (crc >> 1) & 0x7F;
+			 if (feedback_bit)
+			 crc = crc | 0x80;
+			 inByte >>= 1;
+			 bit_counter--;
+		 } while (bit_counter > 0);
+	 }
+	 return crc;
+ }
+
 int main(void)
 {
 	_delay_ms(500);
 	uart_init();
+	uart_sendString("START\r\n");
+	
+#ifndef UART_ONLY_MODE
 	while( !fat16_init() )
 	{
 		uart_sendString("Error fat16 init!\n\r");
 		_delay_ms(100);
 	}
+#endif
 
 	SBI( DDRD, 2 );
 	SBI( DDRD, 6 );
@@ -59,12 +92,17 @@ int main(void)
 
 	uint8_t receiveMode = 0;
 	
+#ifndef UART_ONLY_MODE	
 	initTimer0();
+	ws2812_sendarray_16Mhz(ledData, 300*3);
+#endif
 	
 	uart_sendString("STARTUP!\r\n");
 	
-    /* Replace with your application code */
+#ifndef UART_ONLY_MODE
 	sei();			
+#endif
+
     while (1) 
     {	
 		if(uart_canReadByte() || receiveMode == 1)
@@ -72,20 +110,30 @@ int main(void)
 			if( receiveMode == 0 )
 			{
 				receiveMode = 1;				
-				uart_sendString("UART Mode\n\r");				
+				uart_sendString("UART Mode\r\n");				
 			}
+			
 			while( uart_getByte() != 0x02 );
 			
 			for( uint16_t i = 0; i < 1024; i++ )
 			{
 				ledData[i] = uart_getByte();
 			}
-			uart_sendPString(PSTR("Frame received\n\r"));
-			
-			SBI( PORTD, 5 );
-			ws2812_sendarray_16Mhz(ledData, 300*3);
-			CBI( PORTD, 5 );
+						
+			if( crc8(ledData, 1024, 0xFF) != uart_getByte() )
+			{				
+				uart_sendPString(PSTR("CRC Error!\r\n"));				
+			}
+			else
+			{
+				uart_sendPString(PSTR("Frame received\r\n"));		
+					
+				SBI( PORTD, 5 );
+				ws2812_sendarray_16Mhz(ledData, 300*3);
+				CBI( PORTD, 5 );
+			}						
 		}
+#ifndef UART_ONLY_MODE
 		else
 		{
 			SBI( PORTD, 6 );
@@ -103,5 +151,6 @@ int main(void)
 			_delay_us(500);
 			sei();			
 		}	
+#endif
     }
 }

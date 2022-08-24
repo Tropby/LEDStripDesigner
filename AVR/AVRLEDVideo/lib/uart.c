@@ -108,7 +108,7 @@ uint8_t uart_canReadByte()
 }
 
 #include <avr/pgmspace.h>
-void uart_sendPString(char *str){
+void uart_sendPString(const char *str){
 	while(pgm_read_byte(str) != '\0'){
 		uart_sendByte(pgm_read_byte(str++));
 	}

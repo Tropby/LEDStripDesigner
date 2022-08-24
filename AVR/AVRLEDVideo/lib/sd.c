@@ -75,7 +75,7 @@ enum SD_CARD_TYPE{
 
 #include "uart.h"
 
-#define sd_debug(a) uart_sendPString(PSTR(a)
+#define sd_debug(a) uart_sendPString(PSTR(a))
 
 void sd_showOCR( uint8_t * res )
 {
@@ -92,7 +92,7 @@ void sd_showOCR( uint8_t * res )
 		uart_sendPString(PSTR("BUSY\r\n"));
 	}
 
-	uart_sendPString(PSTR("\tVDD Window: ");
+	uart_sendPString(PSTR("\tVDD Window: "));
 	if(SD_VDD_2728(res[2])) uart_sendPString(PSTR("2.7-2.8, "));
 	if(SD_VDD_2829(res[1])) uart_sendPString(PSTR("2.8-2.9, "));
 	if(SD_VDD_2930(res[1])) uart_sendPString(PSTR("2.9-3.0, "));
@@ -191,7 +191,6 @@ void sd_deselect()
 
 SD_ERRORCODE sd_sendCommand(const uint8_t command, const uint32_t arg, const uint8_t checksum)
 {
-    SD_ERRORCODE response = 0x00;
     uint8_t commandTemp = command;
 
     sd_select();	
