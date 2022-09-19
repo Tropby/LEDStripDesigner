@@ -15,14 +15,18 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , scene(0, 0, 200 + 300 * 40, 200 + 300 * 40)
+    , scene(0, 0, 200 + MAX_LED_COUNT * 40, 200 + MAX_LED_COUNT * 40)
     , dialogLog(&comPort)
-{
+{  
     ui->setupUi(this);
+
+    this->setWindowTitle("LED Strip Designer (" + QString::number(MAX_LED_COUNT) + " LEDs, Sector Size: " + QString::number(SECTOR_SIZE) + " Byte, CRC: YES)");
 
     ui->graphicsView->setScene(&scene);
     ui->graphicsView->verticalScrollBar()->setSliderPosition(1);
     ui->graphicsView->horizontalScrollBar()->setSliderPosition(1);
+
+    ui->spinBoxLEDCount->setMaximum(MAX_LED_COUNT);
 
     connect(&timer, &QTimer::timeout, this, &MainWindow::timeout);
 
@@ -44,7 +48,7 @@ MainWindow::MainWindow(QWidget *parent)
     ButtonColor(QColor(0xFF, 0xFF, 0xFF), ui->toolButtonColor7);
     ButtonColor(Qt::black, ui->toolButtonColor8);
 
-    for( int i = 0; i < 300; i++ )
+    for( int i = 0; i < MAX_LED_COUNT; i++ )
     {
         QGraphicsSimpleTextItem* gst = new QGraphicsSimpleTextItem(QString().sprintf("%03d", i+1));
         gst->setPos(70 + i * 40 + 5, 50);
@@ -208,7 +212,7 @@ void MainWindow::setFrameCount(int count)
         }
         else
         {
-            Frame * f = new Frame(300);
+            Frame * f = new Frame(MAX_LED_COUNT);
             frames.append(f);
 
             f->showLedCount(ui->spinBoxLEDCount->value());
@@ -343,19 +347,55 @@ void MainWindow::on_toolButtonLiveMode_clicked()
     }
 }
 
+uint8_t crc8(uint8_t* data, uint16_t length, uint8_t startValue = 0xFF)
+{
+   uint8_t bit_counter;
+   uint8_t feedback_bit;
+   uint16_t i;
+   uint8_t crc = startValue;
+   uint8_t inByte;
+
+   for (i = 0; i < length; i++)
+   {
+       bit_counter = 8;
+       inByte = *data;
+       data++;
+       do
+       {
+           feedback_bit = (crc ^ inByte) & 0x01;
+           if (feedback_bit)
+               crc = crc ^ 0x18;
+           crc = (crc >> 1) & 0x7F;
+           if (feedback_bit)
+               crc = crc | 0x80;
+           inByte >>= 1;
+           bit_counter--;
+       } while (bit_counter > 0);
+   }
+   return crc;
+}
+
 void MainWindow::timeout()
 {
 
-    char data[1024];
+    int s = frames[ui->comboBoxCurrentFrame->currentIndex()]->getLEDCount()*3;
+
+    char data[SECTOR_SIZE];
     QByteArray b;
     b.append(0x02);
     comPort.write(b);
     frames[ui->comboBoxCurrentFrame->currentIndex()]->render();
-    frames[ui->comboBoxCurrentFrame->currentIndex()]->getRawData(reinterpret_cast<uint8_t*>(data), 1024);
-    comPort.write(data, 1024);
+    frames[ui->comboBoxCurrentFrame->currentIndex()]->getRawData(reinterpret_cast<uint8_t*>(data), SECTOR_SIZE);
+    comPort.write(data, SECTOR_SIZE);
 
-    timer.setInterval(
-        frames[ui->comboBoxCurrentFrame->currentIndex()]->getTime() / 30.0 * 1000 );
+    b.clear();
+    b.append(crc8((uint8_t*)data, SECTOR_SIZE, 0xFF));
+    comPort.write(b);
+
+    int interval =  frames[ui->comboBoxCurrentFrame->currentIndex()]->getTime() / 30.0 * 1000;
+    if(interval < 500 )
+        interval = 500;
+    timer.setInterval(500);
 
     qDebug() << "Set Timeout Interval" << frames[ui->comboBoxCurrentFrame->currentIndex()]->getTime() / 30.0 * 1000;
 

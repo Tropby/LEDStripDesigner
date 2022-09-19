@@ -225,6 +225,7 @@ Makefile: LEDStripDesigner.pro ../../Tools/Qt/5.15.2/mingw81_64/mkspecs/win32-g+
 		../../Tools/Qt/5.15.2/mingw81_64/mkspecs/features/qt_config.prf \
 		../../Tools/Qt/5.15.2/mingw81_64/mkspecs/win32-g++/qmake.conf \
 		../../Tools/Qt/5.15.2/mingw81_64/mkspecs/features/spec_post.prf \
+		.qmake.stash \
 		../../Tools/Qt/5.15.2/mingw81_64/mkspecs/features/exclusive_builds.prf \
 		../../Tools/Qt/5.15.2/mingw81_64/mkspecs/features/toolchain.prf \
 		../../Tools/Qt/5.15.2/mingw81_64/mkspecs/features/default_pre.prf \
@@ -254,7 +255,6 @@ Makefile: LEDStripDesigner.pro ../../Tools/Qt/5.15.2/mingw81_64/mkspecs/win32-g+
 		../../Tools/Qt/5.15.2/mingw81_64/lib/Qt5SerialPort.prl \
 		../../Tools/Qt/5.15.2/mingw81_64/lib/Qt5Core.prl \
 		../../Tools/Qt/5.15.2/mingw81_64/lib/qtmain.prl \
-		.qmake.stash \
 		../../Tools/Qt/5.15.2/mingw81_64/mkspecs/features/build_pass.prf \
 		src/res.qrc
 	$(QMAKE) -o Makefile LEDStripDesigner.pro -spec win32-g++ "CONFIG+=qtquickcompiler"
@@ -413,6 +413,7 @@ Makefile: LEDStripDesigner.pro ../../Tools/Qt/5.15.2/mingw81_64/mkspecs/win32-g+
 ../../Tools/Qt/5.15.2/mingw81_64/mkspecs/features/qt_config.prf:
 ../../Tools/Qt/5.15.2/mingw81_64/mkspecs/win32-g++/qmake.conf:
 ../../Tools/Qt/5.15.2/mingw81_64/mkspecs/features/spec_post.prf:
+.qmake.stash:
 ../../Tools/Qt/5.15.2/mingw81_64/mkspecs/features/exclusive_builds.prf:
 ../../Tools/Qt/5.15.2/mingw81_64/mkspecs/features/toolchain.prf:
 ../../Tools/Qt/5.15.2/mingw81_64/mkspecs/features/default_pre.prf:
@@ -442,7 +443,6 @@ LEDStripDesigner.pro:
 ../../Tools/Qt/5.15.2/mingw81_64/lib/Qt5SerialPort.prl:
 ../../Tools/Qt/5.15.2/mingw81_64/lib/Qt5Core.prl:
 ../../Tools/Qt/5.15.2/mingw81_64/lib/qtmain.prl:
-.qmake.stash:
 ../../Tools/Qt/5.15.2/mingw81_64/mkspecs/features/build_pass.prf:
 src/res.qrc:
 qmake: FORCE

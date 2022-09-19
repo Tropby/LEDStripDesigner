@@ -19,6 +19,7 @@ SOURCES += \
 
 HEADERS += \
     src/avi.h \
+    src/config.hpp \
     src/dialogcolors.h \
     src/dialoglog.h \
     src/frame.h \

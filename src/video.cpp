@@ -1,4 +1,5 @@
 #include "video.h"
+#include "config.hpp"
 #include <QFile>
 
 Video::Video()
@@ -34,10 +35,10 @@ void Video::save(QString filename)
         {
             for( int i = 0; i < frame->getTime(); i++ )
             {
-                uint8_t buffer[1024];
-                uint16_t size = frame->getRawData(buffer, 1024);
+                uint8_t buffer[SECTOR_SIZE];
+                uint16_t size = frame->getRawData(buffer, SECTOR_SIZE);
                 file.write((char*)buffer, size);
-                while( size < 1024 )
+                while( size < SECTOR_SIZE )
                 {
                     file.write("\xFF", 1);
                     size++;

@@ -6,11 +6,13 @@
 #include "https.h"
 #include "sdreader.h"
 
-char ssid[64] = "Tropby";
-char password[64] = "a25kj69s";
+char ssid[64] = "test";
+char password[64] = "test";
 
+// List of files on the SD-Card as links
 String fileList;
 
+// Http Server
 WebServer server(80);
 
 void initWiFi()
@@ -25,14 +27,27 @@ void initWiFi()
     WiFi.setHostname("ESP32_LED");
 
     WiFi.begin(ssid, password);
+    Serial.println("Wait for WiFi... ");
 
+    readFileList();
+    initHttpServer();
+
+    GPIO_NUM_12
+}
+
+void initHttpServer()
+{
     server.on("/", handle_OnConnect);
     server.on("/GetRSSI", handle_GetRSSI);
-
     server.on("/fileList", handle_readDirectory);
     server.on("/openFile", HTTP_GET, handle_openFile);
+    server.onNotFound(handle_NotFound);
+    server.begin();
+    Serial.println("HTTP server started");
+}
 
-    
+void readFileList()
+{
     File dir = SD.open("/");
     while (File entry = dir.openNextFile())
     {
@@ -41,18 +56,10 @@ void initWiFi()
         if (filename.endsWith(".alc"))
         {
             filename = String(entry.name());
-            fileList += "<a href='/openFile?filename=" + filename + "'>" + filename + "</ a><br />";
+            fileList += "<a href='/openFile?filename=" + filename + "'>" + filename.substring(1) + "</ a><br />";
         }
         entry.close();
     }
-
-    server.onNotFound(handle_NotFound);
-    server.begin();
-    Serial.println("HTTP server started");
-
-    Serial.println();
-    Serial.println();
-    Serial.println("Wait for WiFi... ");
 }
 
 void WiFiEvent(WiFiEvent_t event)
@@ -77,10 +84,10 @@ void WiFiEvent(WiFiEvent_t event)
         break;
     case SYSTEM_EVENT_STA_DISCONNECTED:
         Serial.println("Disconnected from WiFi access point");
-
+        delay(1000);
         WiFi.disconnect();
+        delay(1000);
         WiFi.reconnect();
-
         break;
     case SYSTEM_EVENT_STA_AUTHMODE_CHANGE:
         Serial.println("Authentication mode of access point has changed");
@@ -170,7 +177,6 @@ void handle_GetRSSI()
     int8_t rssi = WiFi.RSSI();
 
     DynamicJsonDocument doc(1024);
-    doc["hello"] = "world";
     doc["rssi"] = rssi;
 
     char buffer[400];
@@ -228,35 +234,4 @@ void handle_readDirectory()
     char buffer[1024];
     serializeJson(doc, buffer);
     server.send(200, "text/html", buffer);
-}
-
-void scanNetworks()
-{
-    Serial.println("scan start");
-
-    // WiFi.scanNetworks will return the number of networks found
-    int n = WiFi.scanNetworks();
-    Serial.println("scan done");
-    if (n == 0)
-    {
-        Serial.println("no networks found");
-    }
-    else
-    {
-        Serial.print(n);
-        Serial.println(" networks found");
-        for (int i = 0; i < n; ++i)
-        {
-            // Print SSID and RSSI for each network found
-            Serial.print(i + 1);
-            Serial.print(": ");
-            Serial.print(WiFi.SSID(i));
-            Serial.print(" (");
-            Serial.print(WiFi.RSSI(i));
-            Serial.print(")");
-            Serial.println((WiFi.encryptionType(i) == WIFI_AUTH_OPEN) ? " " : "*");
-            delay(10);
-        }
-    }
-    Serial.println("");
 }

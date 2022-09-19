@@ -12,6 +12,9 @@
 #include <QTimer>
 #include "dialoglog.h"
 #include "dialogcolors.h"
+
+#include "config.hpp"
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE

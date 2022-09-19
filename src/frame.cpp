@@ -6,7 +6,7 @@
 #include <QBrush>
 #include <QPen>
 
-Frame::Frame(int ledCount) : ledCount(300), time(30)
+Frame::Frame(int ledCount) : ledCount(ledCount), time(30)
 {
     data = new LED[ledCount];
     items = new QGraphicsRectItem*[ledCount];
@@ -31,7 +31,7 @@ Frame::Frame(int ledCount) : ledCount(300), time(30)
 
 void Frame::showLedCount(int count)
 {
-    for( int i = 0; i < 300; i++ )
+    for( int i = 0; i < ledCount; i++ )
     {
         items[i]->hide();
     }

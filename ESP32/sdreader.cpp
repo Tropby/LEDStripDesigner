@@ -7,6 +7,7 @@ File currentAnimationFile;
 
 bool initSD()
 {
+    Serial.println("Try to init SD Card");
     if (!SD.begin())
     {
         Serial.println("Failed to initilize SD Card!");
@@ -44,7 +45,7 @@ bool initSD()
     Serial.printf("SD Card Size: %lluMB\n", cardSize);
 }
 
-void readConfig(char *ssid, char *password)
+boolean readConfig(char *ssid, char *password)
 {
     File config;
     config = SD.open("/config.json", FILE_READ);
@@ -52,13 +53,13 @@ void readConfig(char *ssid, char *password)
     if(!config)
     {
         Serial.printf("Can not open config.json!\n");
-        return;
+        return false;
     }
 
     if( !config.available() )
     {
         Serial.printf("config.json not available!\n");
-        return;
+        return false;
     }
 
     StaticJsonDocument<200> doc;
@@ -69,6 +70,8 @@ void readConfig(char *ssid, char *password)
 
     Serial.println(ssid);
     Serial.println(password);
+
+    return true;
 }
 
 size_t readFile(char *buffer, size_t maxSize)
