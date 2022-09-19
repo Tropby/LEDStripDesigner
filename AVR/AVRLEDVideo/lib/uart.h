@@ -14,7 +14,7 @@ extern void uart_init(void);
 extern void uart_sendByte( unsigned char c );
 extern void uart_sendStringArray( char * c, uint8_t d );
 extern void uart_sendString( char * c );
-extern void uart_sendPString(char *str);
+extern void uart_sendPString(const char *str);
 extern void uart_sendUInt8( uint8_t d );
 extern void uart_sendUInt32( uint32_t d );
 extern void uart_sendHEXUInt8( uint8_t d );

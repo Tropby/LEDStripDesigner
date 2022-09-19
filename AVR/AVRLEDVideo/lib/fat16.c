@@ -100,8 +100,8 @@ bool fat16_readRootDirectory()
 					fat16_currentFileSize = file->filesize;
 				
 					uart_sendPString(PSTR("Selected file: "));
-					uart_sendStringArray(file->filename, 8);
-					uart_sendStringArray(file->ext, 3);
+					uart_sendStringArray((char*)file->filename, 8);
+					uart_sendStringArray((char*)file->ext, 3);
 					uart_sendPString(PSTR("\r\n"));
 				
 					uart_sendPString(PSTR("Start cluster of file: "));
@@ -113,8 +113,8 @@ bool fat16_readRootDirectory()
 				else
 				{
 					uart_sendPString(PSTR("Ignoring file: "));
-					uart_sendStringArray(file->filename, 8);
-					uart_sendStringArray(file->ext, 3);
+					uart_sendStringArray((char*)file->filename, 8);
+					uart_sendStringArray((char*)file->ext, 3);
 					uart_sendPString(PSTR("\r\n"));
 				}			
 			}			
